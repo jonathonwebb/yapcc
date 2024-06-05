@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-
-# Copyright 2024 Jon Webb
+# Copyright 2024 Jon Webb <jon@jonwebb.dev>
 #
-# This file is part of Virtaal.
+# This file is part of yapcc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,7 +35,17 @@ def parse():
 def codegen():
     pass
 
-def main(args):
+def main():
+    parser = argparse.ArgumentParser(description='Yet Another Python C Compiler')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--lex', action='store_true', help='lex only')
+    group.add_argument('--parse', action='store_true', help='lex and parse only')
+    group.add_argument('--codegen', action='store_true', help='lex, parse, and generate assembly only')
+    parser.add_argument('-S', action='store_true', help='emit assembly')
+    parser.add_argument('file')
+
+    args = parser.parse_args()
+
     lex_only = args.lex
     parse_only = args.parse
     codegen_only = args.codegen
@@ -86,13 +94,4 @@ def main(args):
         raise
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Python C Compiler')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--lex', action='store_true', help='lex only')
-    group.add_argument('--parse', action='store_true', help='lex and parse only')
-    group.add_argument('--codegen', action='store_true', help='lex, parse, and generate assembly only')
-    parser.add_argument('-S', action='store_true', help='emit assembly file')
-    parser.add_argument('file')
-
-    args = parser.parse_args()
-    main(args)
+    main()

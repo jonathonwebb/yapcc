@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools >= 70.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yapcc"
+version = "0.0.1"
+dependencies = []
+requires-python = ">=3.12"
+authors = [{name="Jon Webb", email="jon@jonwebb.dev"}]
+description = "Yet Another Python C compiler"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+
+[project.urls]
+Homepage = "https://github.com/jon-codes/yapcc"
+Repository = "https://github.com/jon-codes/yapcc.git"
+Issues = "https://github.com/jon-codes/yapcc/issues"
+
+[project.scripts]
+yapcc = "yapcc.cli:main"
