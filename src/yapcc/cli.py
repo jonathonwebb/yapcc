@@ -14,84 +14,94 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+"""Main CLI entrypoint."""
 
 import argparse
 import contextlib
 import os
 import subprocess
 import sys
+from typing import Callable
 
-def cleanup(files):
-    for f in files:
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(f)
+from yapcc.lex import lex
 
-def lex():
-    pass
 
-def parse():
-    pass
+def _make_cleanup(paths: list[str]) -> Callable[[], None]:
+    def cleanup() -> None:
+        for f in paths:
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(f)
 
-def codegen():
-    pass
+    return cleanup
 
-def main():
-    parser = argparse.ArgumentParser(description='Yet Another Python C Compiler')
+
+def main() -> None:
+    """Run compiler CLI."""
+    parser = argparse.ArgumentParser(description="Yet Another Python C Compiler")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--lex', action='store_true', help='lex only')
-    group.add_argument('--parse', action='store_true', help='lex and parse only')
-    group.add_argument('--codegen', action='store_true', help='lex, parse, and generate assembly only')
-    parser.add_argument('-S', action='store_true', help='emit assembly')
-    parser.add_argument('file')
+    group.add_argument("--lex", action="store_true", help="lex only")
+    group.add_argument("--parse", action="store_true", help="lex and parse only")
+    group.add_argument(
+        "--codegen", action="store_true", help="lex, parse, and generate assembly only"
+    )
+    parser.add_argument("-S", action="store_true", help="emit assembly")
+    parser.add_argument("file")
 
     args = parser.parse_args()
 
-    lex_only = args.lex
-    parse_only = args.parse
-    codegen_only = args.codegen
+    lex_only: bool = args.lex
+    parse_only: bool = args.parse
+    codegen_only: bool = args.codegen
 
-    (file_base, _) = os.path.splitext(args.file)
-    preprocess_file = file_base + '.i'
-    assembly_file = file_base + '.s'
-    output_file = file_base
+    (input_base, _) = os.path.splitext(args.file)
+    input_path = args.file
+    preprocess_path = input_base + ".i"
+    assembly_path = input_base + ".s"
+    output_path = input_base
 
-    all_files = [preprocess_file, assembly_file, output_file]
+    cleanup = _make_cleanup([preprocess_path, assembly_path, output_path])
 
     try:
         # pre-process source file
-        subprocess.run(['gcc', '-E', '-P', args.file, '-o', preprocess_file], check=True)
+        subprocess.run(
+            ["gcc", "-E", "-P", input_path, "-o", preprocess_path], check=True
+        )
 
         # compile pre-processed source file
 
-        # perform lexing
-        lex()
+        # read source & perform lexing
+        with open(preprocess_path, "r", encoding="ascii") as preprocess_file:
+            source = preprocess_file.read()
+
+        lex(source)
         if lex_only:
-            cleanup(all_files)
+            cleanup()
             sys.exit(0)
 
-        # perform parsing
-        parse()
+        # TODO: perform parsing
+        # parse()
         if parse_only:
-            cleanup(all_files)
-            sys.exit(0)
-        
-        # perform codegen
-        codegen()
-        if codegen_only:
-            cleanup(all_files)
+            cleanup()
             sys.exit(0)
 
-        # emit assembly
-        open(assembly_file, 'w').close() # TODO: this step is stubbed
-        os.remove(preprocess_file)
+        # TODO: perform codegen
+        # codegen()
+        if codegen_only:
+            cleanup()
+            sys.exit(0)
+
+        # TODO: emit assembly
+        open(assembly_path, "w", encoding="ascii").close()
+        os.remove(preprocess_path)
 
         # assemble and link assembly file
-        subprocess.run(['gcc', assembly_file, '-o', output_file], check=True)
-        os.remove(assembly_file)
+        subprocess.run(["gcc", assembly_path, "-o", output_path], check=True)
+        os.remove(assembly_path)
 
-    except Exception as err:
-        cleanup([preprocess_file, assembly_file, output_file])
+    except Exception:
+        cleanup()
         raise
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

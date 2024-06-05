@@ -11,15 +11,18 @@ authors = [{name="Jon Webb", email="jon@jonwebb.dev"}]
 description = "Yet Another Python C compiler"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
 
 [project.urls]
 Homepage = "https://github.com/jon-codes/yapcc"
 Repository = "https://github.com/jon-codes/yapcc.git"
 Issues = "https://github.com/jon-codes/yapcc/issues"
+
+[project.optional-dependencies]
+dev = ["ruff~=0.4.7", "mypy~=1.10.0"]
 
 [project.scripts]
 yapcc = "yapcc.cli:main"
