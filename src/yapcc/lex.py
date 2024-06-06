@@ -16,7 +16,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 """Lexer (tokenizer) step logic."""
 
-from enum import Enum
+from enum import Enum, auto
 from itertools import takewhile
 from typing import NamedTuple
 
@@ -26,20 +26,20 @@ KEYWORDS: list[str] = ["int", "void", "return"]
 class TokenType(Enum):
     """A lexical token type defined by the C standard."""
 
-    IDENTIFIER = "identifier"
-    CONSTANT = "constant"
+    IDENTIFIER = auto()
+    CONSTANT = auto()
 
     # Keywords:
-    INT_KEYWORD = "int"
-    VOID_KEYWORD = "void"
-    RETURN_KEYWORD = "return"
+    INT_KEYWORD = auto()
+    VOID_KEYWORD = auto()
+    RETURN_KEYWORD = auto()
 
     # Punctuators:
-    OPEN_PAREN = "open-paren"
-    CLOSE_PAREN = "close-paren"
-    OPEN_BRACE = "open-brace"
-    CLOSE_BRACE = "close-brace"
-    SEMICOLON = "semicolon"
+    OPEN_PAREN = auto()
+    CLOSE_PAREN = auto()
+    OPEN_BRACE = auto()
+    CLOSE_BRACE = auto()
+    SEMICOLON = auto()
 
 
 class Token(NamedTuple):
@@ -55,7 +55,10 @@ def _read_constant(source: str) -> Token:
     if len(literal) != len(source):
         next_char = source[len(literal)]
         if next_char.isalpha() or next_char == "_":
-            raise RuntimeError("Identifier may not start with a digit")
+            # TODO: better error message
+            raise RuntimeError(
+                f'TokenError: Illegal constant "{literal+ next_char}..."'
+            )
 
     return Token(TokenType.CONSTANT, literal)
 
@@ -91,7 +94,7 @@ def _next_token(source: str) -> tuple[Token, str]:
         case _ if first_char.isalpha() or first_char == "_":
             token = _read_identifier(source)
         case _:
-            raise RuntimeError("Illegal token")
+            raise RuntimeError(f'TokenError: Illegal token "{first_char}"')
 
     return (token, source[len(token.literal) :])
 

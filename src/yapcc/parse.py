@@ -97,12 +97,10 @@ def _expect(expected: TokenType, tokens: list[Token]) -> Token:
         actual = tokens.pop(0)
         if actual.type != expected:
             raise RuntimeError(
-                f'Syntax error: expected {expected}, but found "{actual.literal}"'
+                f'SyntaxError: expected {expected}, but found "{actual.literal}"'
             )
     else:
-        raise RuntimeError(
-            f'Syntax error: expected {expected}, but found end of input"'
-        )
+        raise RuntimeError(f"SyntaxError: expected {expected}, but found end of input")
     return actual
 
 
@@ -111,7 +109,7 @@ def parse(tokens: list[Token]) -> AST:
     ast = Program(function_definition=_parse_function(tokens))
     if tokens:
         raise RuntimeError(
-            f'Syntax error: expected end of input, but found "{tokens[0].literal}"'
+            f'SyntaxError: expected end of input, but found "{tokens[0].literal}"'
         )
 
     return ast

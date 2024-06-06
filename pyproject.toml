@@ -22,7 +22,16 @@ Repository = "https://github.com/jon-codes/yapcc.git"
 Issues = "https://github.com/jon-codes/yapcc/issues"
 
 [project.optional-dependencies]
-dev = ["ruff~=0.4.7", "mypy~=1.10.0", "pytest~=8.2.2"]
+dev = ["ruff~=0.4.7", "mypy~=1.10.0", "pytest~=8.2.2", "coverage~=7.5.3"]
 
 [project.scripts]
 yapcc = "yapcc.cli:main"
+
+[tool.coverage.run]
+source = ["yapcc"]
+
+[tool.coverage.paths]
+source = [
+  "src/yapcc",
+  "**/site-packages/yapcc"
+]
