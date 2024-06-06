@@ -26,9 +26,13 @@ KEYWORDS: list[str] = ["int", "void", "return"]
 class TokenType(Enum):
     """A lexical token type defined by the C standard."""
 
-    KEYWORD = "keyword"
     IDENTIFIER = "identifier"
     CONSTANT = "constant"
+
+    # Keywords:
+    INT_KEYWORD = "int"
+    VOID_KEYWORD = "void"
+    RETURN_KEYWORD = "return"
 
     # Punctuators:
     OPEN_PAREN = "open-paren"
@@ -61,11 +65,11 @@ def _read_identifier(source: str) -> Token:
 
     match literal:
         case "int":
-            return Token(TokenType.KEYWORD, "int")
+            return Token(TokenType.INT_KEYWORD, "int")
         case "void":
-            return Token(TokenType.KEYWORD, "void")
+            return Token(TokenType.VOID_KEYWORD, "void")
         case "return":
-            return Token(TokenType.KEYWORD, "return")
+            return Token(TokenType.RETURN_KEYWORD, "return")
         case _:
             return Token(TokenType.IDENTIFIER, literal)
 

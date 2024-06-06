@@ -14,20 +14,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-"""Lexer tests for yapcc."""
+"""Parser tests for yapcc."""
 
-from yapcc.lex import Token, TokenType, lex
+from yapcc.lex import Token, TokenType
+from yapcc.parse import Constant, Function, Program, Return, parse
 
 
-class TestLex:
-    def test_empty(self) -> None:
-        """Return no tokens from an empty file."""
-        tokens = lex("")
-        assert len(tokens) == 0
-
+class TestParse:
     def test_example(self) -> None:
-        """Return expected tokens from a simple test file."""
-        expected: list[Token] = [
+        """Return expected AST from a simple list of tokens."""
+        tokens: list[Token] = [
             Token(TokenType.INT_KEYWORD, "int"),
             Token(TokenType.IDENTIFIER, "main"),
             Token(TokenType.OPEN_PAREN, "("),
@@ -40,9 +36,18 @@ class TestLex:
             Token(TokenType.CLOSE_BRACE, "}"),
         ]
 
-        tokens = lex("int main(void) {\n\treturn 2;\n}")
-        assert len(tokens) == 10
+        ast = parse(tokens)
 
-        for idx, token in enumerate(tokens):
-            assert token.type == expected[idx].type
-            assert token.literal == expected[idx].literal
+        # program node
+        assert isinstance(ast, Program)
+
+        # function node
+        assert isinstance(ast.function_definition, Function)
+        assert ast.function_definition.name == "main"
+
+        # function body node
+        assert isinstance(ast.function_definition.body, Return)
+
+        # function body expression node
+        assert isinstance(ast.function_definition.body.exp, Constant)
+        assert ast.function_definition.body.exp.value == 2

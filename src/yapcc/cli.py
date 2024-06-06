@@ -21,9 +21,11 @@ import contextlib
 import os
 import subprocess
 import sys
+from pprint import pp
 from typing import Callable
 
 from yapcc.lex import lex
+from yapcc.parse import parse
 
 
 def _make_cleanup(paths: list[str]) -> Callable[[], None]:
@@ -73,13 +75,15 @@ def main() -> None:
         with open(preprocess_path, "r", encoding="ascii") as preprocess_file:
             source = preprocess_file.read()
 
-        lex(source)
+        tokens = lex(source)
+        pp(tokens)
         if lex_only:
             cleanup()
             sys.exit(0)
 
         # TODO: perform parsing
-        # parse()
+        ast = parse(tokens)
+        pp(ast)
         if parse_only:
             cleanup()
             sys.exit(0)
