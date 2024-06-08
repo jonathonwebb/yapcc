@@ -40,6 +40,9 @@ class TokenType(Enum):
     OPEN_BRACE = auto()
     CLOSE_BRACE = auto()
     SEMICOLON = auto()
+    MINUS = auto()
+    MINUS_MINUS = auto()
+    TILDE = auto()
 
 
 class Token(NamedTuple):
@@ -77,18 +80,33 @@ def _read_identifier(source: str) -> Token:
             return Token(TokenType.IDENTIFIER, literal)
 
 
+def _peek(source: str) -> str:
+    if len(source) > 1:
+        return source[1]
+    else:
+        return ""
+
+
 def _next_token(source: str) -> tuple[Token, str]:
     match first_char := source[0]:
         case "(":
-            token = Token(TokenType.OPEN_PAREN, first_char)
+            token = Token(TokenType.OPEN_PAREN, "(")
         case ")":
-            token = Token(TokenType.CLOSE_PAREN, first_char)
+            token = Token(TokenType.CLOSE_PAREN, ")")
         case "{":
-            token = Token(TokenType.OPEN_BRACE, first_char)
+            token = Token(TokenType.OPEN_BRACE, "{")
         case "}":
-            token = Token(TokenType.CLOSE_BRACE, first_char)
+            token = Token(TokenType.CLOSE_BRACE, "}")
         case ";":
-            token = Token(TokenType.SEMICOLON, first_char)
+            token = Token(TokenType.SEMICOLON, ";")
+        case "-":
+            next_char = _peek(source)
+            if next_char == "-":
+                token = Token(TokenType.MINUS_MINUS, "--")
+                raise RuntimeError('TokenError: Illegal token "--"')
+            token = Token(TokenType.MINUS, "-")
+        case "~":
+            token = Token(TokenType.TILDE, "~")
         case _ if first_char.isnumeric():
             token = _read_constant(source)
         case _ if first_char.isalpha() or first_char == "_":

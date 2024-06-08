@@ -23,7 +23,17 @@ from typing import Callable
 
 import pytest
 from yapcc.lex import Token, lex
-from yapcc.parse import Constant, Function, Program, Return, parse
+from yapcc.parse import (
+    ComplementOperator,
+    Constant,
+    Function,
+    NegateOperator,
+    Node,
+    Program,
+    Return,
+    Unary,
+    parse,
+)
 
 LexedFixture = Callable[[str], list[Token]]
 
@@ -49,7 +59,7 @@ class TestParse:
         """Return expected AST with valid syntax."""
         tokens = lexed("input/valid/multi_digit.c")
 
-        actual = parse(tokens)
+        actual: Node = parse(tokens)
 
         # program node
         assert isinstance(actual, Program)
@@ -65,12 +75,46 @@ class TestParse:
         assert isinstance(actual.function_definition.body.exp, Constant)
         assert actual.function_definition.body.exp.value == 100
 
+    def test_valid_nested_exp(self, lexed: LexedFixture) -> None:
+        """Return expected AST with nested unary expressions."""
+        tokens = lexed("input/valid/nested_exp.c")
+
+        actual = parse(tokens)
+
+        # program node
+        program = actual
+        assert isinstance(program, Program)
+
+        # function node
+        fn = program.function_definition
+        assert isinstance(fn, Function)
+        assert fn.name == "main"
+
+        # function body node
+        body = fn.body
+        assert isinstance(body, Return)
+
+        # function body expression node
+        exp = body.exp
+        assert isinstance(exp, Unary)
+        assert isinstance(exp.operator, ComplementOperator)
+
+        # nested expression node
+        nested_exp = exp.exp
+        assert isinstance(nested_exp, Unary)
+        assert isinstance(nested_exp.operator, NegateOperator)
+
+        # leaf constant node
+        constant = nested_exp.exp
+        assert isinstance(constant, Constant)
+        assert constant.value == 1
+
     def test_invalid_end_before_expr(self, lexed: LexedFixture) -> None:
         """Raises expected error with unterminated expressions."""
         tokens = lexed("input/invalid_parse/end_before_expr.c")
         with pytest.raises(
             RuntimeError,
-            match="SyntaxError: expected TokenType.CONSTANT, but found end of input",
+            match="SyntaxError: unexpected end of input",
         ):
             parse(tokens)
 
@@ -133,7 +177,7 @@ class TestParse:
         tokens = lexed("input/invalid_parse/not_expression.c")
         with pytest.raises(
             RuntimeError,
-            match='SyntaxError: expected TokenType.CONSTANT, but found "int"',
+            match="SyntaxError: Malformed expression",
         ):
             parse(tokens)
 
@@ -146,7 +190,7 @@ class TestParse:
         ):
             parse(tokens)
 
-    def test_(self, lexed: LexedFixture) -> None:
+    def test_invalid_switched_parens(self, lexed: LexedFixture) -> None:
         """Raises expected when parentheses direction is inverted."""
         tokens = lexed("input/invalid_parse/switched_parens.c")
         with pytest.raises(

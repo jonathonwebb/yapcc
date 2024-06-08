@@ -1,17 +1,17 @@
 # Copyright 2024 Jon Webb <jon@jonwebb.dev>
-#
+
 # This file is part of yapcc.
-#
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-#
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 """Recursive descent parser logic."""
@@ -36,8 +36,30 @@ class Constant(Expression):
     value: int
 
 
+class UnaryOperator(Node):
+    """Abstract AST unary operator node."""
+
+
+@dataclass
+class ComplementOperator(UnaryOperator):
+    """AST complement operator."""
+
+
+@dataclass
+class NegateOperator(UnaryOperator):
+    """AST negate operator."""
+
+
+@dataclass
+class Unary(Expression):
+    """AST unary expression node."""
+
+    op: UnaryOperator
+    exp: Expression
+
+
 class Statement(Node):
-    """AST abstract statement node."""
+    """Abstract AST statement node."""
 
 
 @dataclass
@@ -62,10 +84,39 @@ class Program(Node):
     function_definition: Function
 
 
+def _peek(tokens: list[Token]) -> Token:
+    if tokens:
+        return tokens[0]
+    else:
+        raise RuntimeError("SyntaxError: unexpected end of input")
+
+
+def _parse_unop(tokens: list[Token]) -> UnaryOperator:
+    if _consume(tokens).type == TokenType.TILDE:
+        return ComplementOperator()
+    else:
+        return NegateOperator()
+
+
 def _parse_exp(tokens: list[Token]) -> Expression:
-    const_token = _expect(TokenType.CONSTANT, tokens)
-    value = int(const_token.literal)
-    return Constant(value=value)
+    next_token = _peek(tokens)
+    if next_token.type == TokenType.CONSTANT:
+        const_token = _consume(tokens)
+        value = int(const_token.literal)
+        return Constant(value)
+    elif next_token.type in [TokenType.TILDE, TokenType.MINUS]:
+        op = _parse_unop(tokens)
+        inner_exp = _parse_exp(tokens)
+        return Unary(op, inner_exp)
+    elif next_token.type == TokenType.OPEN_PAREN:
+        _consume(tokens)
+        inner_exp = _parse_exp(tokens)
+        _expect(TokenType.CLOSE_PAREN, tokens)
+        return inner_exp
+    else:
+        raise RuntimeError(
+            f'SyntaxError: Malformed expression "{tokens[0] + next_token}"'
+        )
 
 
 def _parse_statement(tokens: list[Token]) -> Statement:
@@ -87,6 +138,13 @@ def _parse_function(tokens: list[Token]) -> Function:
     _expect(TokenType.CLOSE_BRACE, tokens)
 
     return Function(name=name, body=body)
+
+
+def _consume(tokens: list[Token]) -> Token:
+    if tokens:
+        return tokens.pop(0)
+    else:
+        raise RuntimeError("Token list is empty.")
 
 
 def _expect(expected: TokenType, tokens: list[Token]) -> Token:

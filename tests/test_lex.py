@@ -210,6 +210,78 @@ class TestLex:
 
         assert_tokens(actual, expected)
 
+    def test_valid_complement(
+        self, preprocess: PreprocessFixture, assert_tokens: AssertTokensFixture
+    ) -> None:
+        """Return expected tokens with unary complement expressions."""
+        source = preprocess("input/valid/complement.c")
+        expected: list[Token] = [
+            Token(TokenType.INT_KEYWORD, "int"),
+            Token(TokenType.IDENTIFIER, "main"),
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.VOID_KEYWORD, "void"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.RETURN_KEYWORD, "return"),
+            Token(TokenType.TILDE, "~"),
+            Token(TokenType.CONSTANT, "1"),
+            Token(TokenType.SEMICOLON, ";"),
+            Token(TokenType.CLOSE_BRACE, "}"),
+        ]
+
+        actual = lex(source)
+
+        assert_tokens(actual, expected)
+
+    def test_valid_negate(
+        self, preprocess: PreprocessFixture, assert_tokens: AssertTokensFixture
+    ) -> None:
+        """Return expected tokens with unary negation expressions."""
+        source = preprocess("input/valid/negate.c")
+        expected: list[Token] = [
+            Token(TokenType.INT_KEYWORD, "int"),
+            Token(TokenType.IDENTIFIER, "main"),
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.VOID_KEYWORD, "void"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.RETURN_KEYWORD, "return"),
+            Token(TokenType.MINUS, "-"),
+            Token(TokenType.CONSTANT, "1"),
+            Token(TokenType.SEMICOLON, ";"),
+            Token(TokenType.CLOSE_BRACE, "}"),
+        ]
+
+        actual = lex(source)
+
+        assert_tokens(actual, expected)
+
+    def test_valid_nested_exp(
+        self, preprocess: PreprocessFixture, assert_tokens: AssertTokensFixture
+    ) -> None:
+        """Return expected tokens with unary nested expressions."""
+        source = preprocess("input/valid/nested_exp.c")
+        expected: list[Token] = [
+            Token(TokenType.INT_KEYWORD, "int"),
+            Token(TokenType.IDENTIFIER, "main"),
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.VOID_KEYWORD, "void"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.RETURN_KEYWORD, "return"),
+            Token(TokenType.TILDE, "~"),
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.MINUS, "-"),
+            Token(TokenType.CONSTANT, "1"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+            Token(TokenType.SEMICOLON, ";"),
+            Token(TokenType.CLOSE_BRACE, "}"),
+        ]
+
+        actual = lex(source)
+
+        assert_tokens(actual, expected)
+
     def test_invalid_at_sign(
         self, preprocess: PreprocessFixture, assert_tokens: AssertTokensFixture
     ) -> None:

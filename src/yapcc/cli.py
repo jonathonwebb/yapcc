@@ -27,6 +27,7 @@ from typing import Callable
 from yapcc.codegen import codegen, emit
 from yapcc.lex import lex
 from yapcc.parse import parse
+from yapcc.tac import ir
 
 
 def _make_cleanup(paths: list[str]) -> Callable[[], None]:
@@ -45,6 +46,9 @@ def main() -> None:
     group.add_argument("--lex", action="store_true", help="lex only")
     group.add_argument("--parse", action="store_true", help="lex and parse only")
     group.add_argument(
+        "--tacky", action="store_true", help="lex, parse, and generate IR only"
+    )
+    group.add_argument(
         "--codegen", action="store_true", help="lex, parse, and generate assembly only"
     )
     parser.add_argument("-S", action="store_true", help="emit assembly")
@@ -54,6 +58,7 @@ def main() -> None:
 
     lex_only: bool = args.lex
     parse_only: bool = args.parse
+    tac_only: bool = args.tacky
     codegen_only: bool = args.codegen
     emit_only: bool = args.S
 
@@ -80,15 +85,22 @@ def main() -> None:
 
         # lex step
         tokens = lex(source)
-        # pp(tokens)
+        pp(tokens)
         if lex_only:
             cleanup_all()
             sys.exit(0)
 
         # parse step
         ast = parse(tokens)
-        # pp(ast)
+        pp(ast)
         if parse_only:
+            cleanup_all()
+            sys.exit(0)
+
+        # tac IR step
+        tac = ir(ast)
+        pp(tac)
+        if tac_only:
             cleanup_all()
             sys.exit(0)
 

@@ -37,13 +37,11 @@ class Expression(Operand):
     """Abstract assembly expression."""
 
 
+@dataclass
 class Imm(Expression):
     """Assembly imm expression."""
 
     value: int
-
-    def __init__(self, value: int) -> None:
-        self.value = value
 
 
 class Register(Operand):
@@ -54,15 +52,12 @@ class Instruction(Node):
     """Abstract assembly instruction."""
 
 
+@dataclass
 class Mov(Instruction):
     """Assembly mov instruction."""
 
     src: Imm
     dest: Register
-
-    def __init__(self, src: Imm, dest: Register) -> None:
-        self.src = src
-        self.dest = dest
 
 
 class Ret(Instruction):
