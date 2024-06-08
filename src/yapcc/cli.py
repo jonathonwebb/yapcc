@@ -24,6 +24,7 @@ import sys
 from pprint import pp
 from typing import Callable
 
+from yapcc.codegen import codegen, emit
 from yapcc.lex import lex
 from yapcc.parse import parse
 
@@ -54,6 +55,7 @@ def main() -> None:
     lex_only: bool = args.lex
     parse_only: bool = args.parse
     codegen_only: bool = args.codegen
+    emit_only: bool = args.S
 
     (input_base, _) = os.path.splitext(args.file)
     input_path = args.file
@@ -61,7 +63,8 @@ def main() -> None:
     assembly_path = input_base + ".s"
     output_path = input_base
 
-    cleanup = _make_cleanup([preprocess_path, assembly_path, output_path])
+    cleanup_all = _make_cleanup([preprocess_path, assembly_path, output_path])
+    cleanup_except_asm = _make_cleanup([preprocess_path])
 
     try:
         # pre-process source file
@@ -75,27 +78,35 @@ def main() -> None:
         with open(preprocess_path, "r", encoding="ascii") as preprocess_file:
             source = preprocess_file.read()
 
+        # lex step
         tokens = lex(source)
-        pp(tokens)
+        # pp(tokens)
         if lex_only:
-            cleanup()
+            cleanup_all()
             sys.exit(0)
 
-        # TODO: perform parsing
+        # parse step
         ast = parse(tokens)
-        pp(ast)
+        # pp(ast)
         if parse_only:
-            cleanup()
+            cleanup_all()
             sys.exit(0)
 
-        # TODO: perform codegen
-        # codegen()
+        # codegen step
+        asm = codegen(ast)
+        # pp(asm)
         if codegen_only:
-            cleanup()
+            cleanup_all()
             sys.exit(0)
 
-        # TODO: emit assembly
-        open(assembly_path, "w", encoding="ascii").close()
+        # emit step
+        output = emit(asm)
+        # pp(output)
+        with open(assembly_path, "w", encoding="ascii") as outfile:
+            outfile.write(output)
+        if emit_only:
+            cleanup_except_asm()
+            sys.exit(0)
         os.remove(preprocess_path)
 
         # assemble and link assembly file
@@ -103,7 +114,7 @@ def main() -> None:
         os.remove(assembly_path)
 
     except Exception:
-        cleanup()
+        cleanup_all()
         raise
 
 

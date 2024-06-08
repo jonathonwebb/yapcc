@@ -62,9 +62,6 @@ class Program(Node):
     function_definition: Function
 
 
-AST = Node
-
-
 def _parse_exp(tokens: list[Token]) -> Expression:
     const_token = _expect(TokenType.CONSTANT, tokens)
     value = int(const_token.literal)
@@ -104,7 +101,7 @@ def _expect(expected: TokenType, tokens: list[Token]) -> Token:
     return actual
 
 
-def parse(tokens: list[Token]) -> AST:
+def parse(tokens: list[Token]) -> Program:
     """Parse a list of tokens, returning an AST."""
     ast = Program(function_definition=_parse_function(tokens))
     if tokens:
