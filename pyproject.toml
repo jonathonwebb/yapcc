@@ -40,6 +40,11 @@ source = [
   "**/site-packages/yapcc"
 ]
 
+[tool.mypy]
+python_version = 3.12
+strict = true
+cache_dir = ".cache/mypy_cache"
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
