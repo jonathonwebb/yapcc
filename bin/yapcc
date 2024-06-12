@@ -16,8 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+"""Run yapcc as a shell script."""
 
 from yapcc.cli import main
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

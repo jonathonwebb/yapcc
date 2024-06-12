@@ -2,7 +2,7 @@
 
 > Yet Another Python C Compiler [^1]
 
-A Python implementation of the learning C compiler from the book [`Writing a C Compiler`](https://nostarch.com/writing-c-compiler) by Nora Sandler.
+A Python implementation of the learning x86 C compiler from the book [`Writing a C Compiler`](https://nostarch.com/writing-c-compiler) by Nora Sandler.
 
 ```
 usage: yapcc [-h] [--lex | --parse | --codegen] [-S] file
@@ -21,5 +21,6 @@ options:
 ```
 
 [^1]: not to be confused with:
+
     - `yacc`: Yet Another Compiler-Compiler
     - `pcc`: Portable C Compiler

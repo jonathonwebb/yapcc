@@ -97,12 +97,12 @@ class TestParse:
         # function body expression node
         exp = body.exp
         assert isinstance(exp, Unary)
-        assert isinstance(exp.operator, ComplementOperator)
+        assert isinstance(exp.op, ComplementOperator)
 
         # nested expression node
         nested_exp = exp.exp
         assert isinstance(nested_exp, Unary)
-        assert isinstance(nested_exp.operator, NegateOperator)
+        assert isinstance(nested_exp.op, NegateOperator)
 
         # leaf constant node
         constant = nested_exp.exp

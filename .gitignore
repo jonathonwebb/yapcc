@@ -154,9 +154,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Ruff cache files
-.ruff_cache
-
 # Assembly output files
 *.s
 
